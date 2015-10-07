@@ -52,6 +52,10 @@ Sub MarkdownTable()
             
             Next mRow
     
+            If outputLength(mCol) = 0 Then
+                outputLength(mCol) = 10
+            End If
+    
         Next mCol
     
     For mCol = startCol To endCol
