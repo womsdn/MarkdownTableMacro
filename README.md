@@ -29,12 +29,12 @@ C:\Users\[user]\AppData\Roaming\Microsoft\AddIns\Markdown
 
 ### Add Button to Ribbon ###
 
-![](README/Ribbon_button_0.png)
+![](README/Ribbon_Button_0.png)
 
 	File / Options / Customize Ribbon
 	Fichier / Options / Personnaliser le rubban
 
-![](README/Ribbon_button_1.png)
+![](README/Ribbon_Button_1.png)
 
 
 ### UnInstall Macro ###
