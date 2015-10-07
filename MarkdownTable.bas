@@ -19,6 +19,8 @@ Sub MarkdownTable()
     ' This will be the output string that is copied to the clipboard
     Dim outputString As String
     ' Determines alignment of the column based on alignment of row 1 in column
+    Dim colAlignment As String
+    
     Dim rowSpaceHeader As String
     
     If Selection.Count <= 1 Then
@@ -39,11 +41,32 @@ Sub MarkdownTable()
     Dim outputLength() As Integer
     ReDim outputLength(0 To endCol) As Integer
     
+    Dim currentColumn As Integer
+    Dim currentRow As Integer
+            
+    
     For mCol = startCol To endCol
+    
+        currentColumn = Selection.Column + mCol - 1
     
         For mRow = startRow To endRow
     
+            currentRow = Selection.Row + mRow - 1
+    
             currentLenght = Len(tableArray(mRow, mCol))
+            
+            isBold = Cells(currentRow, currentColumn).Font.Bold
+            isItalic = Cells(currentRow, currentColumn).Font.Italic
+            isUnderline = (Cells(currentRow, currentColumn).Font.Underline = 2)
+            
+            If isBold Then
+                currentLenght = currentLenght + 4
+            ElseIf isItalic Then
+                currentLenght = currentLenght + 2
+            ElseIf isUnderline Then
+                currentLenght = currentLenght + 2
+            End If
+
             MaxLenght = outputLength(mCol)
             
             If currentLenght > MaxLenght Then
@@ -58,22 +81,41 @@ Sub MarkdownTable()
     
         Next mCol
     
+    Dim SeparatorStart As String
+    Dim SeparatorEnd As String
+    
     For mCol = startCol To endCol
-        Dim currentColumn As Integer
         
         Dim colLength As Integer
         colLength = outputLength(mCol)
         
         currentColumn = Selection.Column + mCol - 1
+        cellAlignment = Range(Cells(Selection.Row, currentColumn), Cells(Selection.Row, currentColumn)).HorizontalAlignment
         
-        If mCol = startCol Then
-            rowSpaceHeader = "|" + String(colLength + 2, "-") + "|"
-        Else
-            rowSpaceHeader = String(colLength + 2, "-") + "|"
-        End If
-        
+        SeparatorStart = IIf(mCol = startCol, "|", "") & IIf(cellAlignment = xlCenter, ":", " ")
+        SeparatorEnd = IIf(cellAlignment = xlCenter Or cellAlignment = xlRight, ":", " ") & "|"
+    
+        rowSpaceHeader = SeparatorStart + String(colLength, "-") + SeparatorEnd
+   
         For mRow = startRow To endRow
             entry = tableArray(mRow, mCol)
+            
+            If Not mRow = startRow Then
+           
+                currentRow = Selection.Row + mRow - 1
+                isBold = Cells(currentRow, currentColumn).Font.Bold
+                isItalic = Cells(currentRow, currentColumn).Font.Italic
+                isUnderline = (Cells(currentRow, currentColumn).Font.Underline = 2)
+             
+                If isBold Then
+                    entry = "**" & entry & "**"
+                ElseIf isItalic Then
+                    entry = "*" & entry & "*"
+                ElseIf isUnderline Then
+                    entry = "`" & entry & "`"
+                End If
+            End If
+            
             mIndex = mRow
             ' First row has index of 0.  As 2nd row in Table formatting
             ' defines column alignment the rest of the indices are equal to
