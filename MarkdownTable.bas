@@ -1,5 +1,6 @@
-Sub RedditTable()
-' Jens Bodal 2/13/2015
+Attribute VB_Name = "MarkdownTableModule"
+Sub MarkdownTable()
+' Sylvain for markdown (fork from Jens Bodal 2/13/2015)
 ' This macro requires the Microsoft Forms 2.0 Object Library, it will likely
 ' need to be added manually from Tools => References => Browse => FM20.DLL
 
@@ -18,35 +19,59 @@ Sub RedditTable()
     ' This will be the output string that is copied to the clipboard
     Dim outputString As String
     ' Determines alignment of the column based on alignment of row 1 in column
-    Dim colAlignment As String
+    Dim rowSpaceHeader As String
     
+    If Selection.Count <= 1 Then
+        MsgBox ("Selection is not an Array")
+        End
+    End If
+        
     'Create array from selection, assume 2d array (row, column)
-    tableArray = selection.Value
+    tableArray = Selection.Value
     startCol = LBound(tableArray, 2)
     endCol = UBound(tableArray, 2)
     startRow = LBound(tableArray, 1)
     endRow = UBound(tableArray, 1)
     
-    ' 1 Dimensional array that holds each "row" of the Reddit table
     ReDim outputArray(0 To endRow) As String
     
-    For mCol = startCol To endCol
-        ' Setting column alignment based on alignment of first row in current column
-        Dim currentColumn As Integer
-        currentColumn = selection.Column + mCol - 1
-        cellAlignment = Range(Cells(selection.Row, currentColumn), Cells(selection.Row, currentColumn)).HorizontalAlignment
-        If cellAlignment = xlRight Then
-            colAlignment = "-:| "
-        ElseIf cellAlignment = xlCenter Then
-            colAlignment = ":-:| "
-        Else
-            colAlignment = ":-| "
-        End If
+    ' Store max text length for each column
+    Dim outputLength() As Integer
+    ReDim outputLength(0 To endCol) As Integer
     
+    For mCol = startCol To endCol
+    
+        For mRow = startRow To endRow
+    
+            currentLenght = Len(tableArray(mRow, mCol))
+            MaxLenght = outputLength(mCol)
+            
+            If currentLenght > MaxLenght Then
+                outputLength(mCol) = currentLenght
+            End If
+            
+            Next mRow
+    
+        Next mCol
+    
+    For mCol = startCol To endCol
+        Dim currentColumn As Integer
+        
+        Dim colLength As Integer
+        colLength = outputLength(mCol)
+        
+        currentColumn = Selection.Column + mCol - 1
+        
+        If mCol = startCol Then
+            rowSpaceHeader = "|" + String(colLength + 2, "-") + "|"
+        Else
+            rowSpaceHeader = String(colLength + 2, "-") + "|"
+        End If
+        
         For mRow = startRow To endRow
             entry = tableArray(mRow, mCol)
             mIndex = mRow
-            ' First row has index of 0.  As 2nd row in Reddit Table formatting
+            ' First row has index of 0.  As 2nd row in Table formatting
             ' defines column alignment the rest of the indices are equal to
             ' the actual row number
             If mRow = startRow Then
@@ -54,14 +79,18 @@ Sub RedditTable()
             End If
             ' Adding new column notation to end of entry
             
-            outputArray(mIndex) = outputArray(mIndex) + entry + " | "
+            If mCol = startCol Then
+                outputArray(mIndex) = "| "
+            End If
+            
+            outputArray(mIndex) = outputArray(mIndex) + Left(entry & Space(colLength), colLength) + " | "
             If mCol = endCol Then
                 outputArray(mIndex) = outputArray(mIndex) + vbCrLf
             End If
     
             Next mRow
             ' For each column need to assign formatting in 2nd table row
-            outputArray(1) = outputArray(1) + colAlignment
+            outputArray(1) = outputArray(1) + rowSpaceHeader
             
         Next mCol
         
@@ -77,3 +106,4 @@ Sub RedditTable()
     dataObject.PutInClipboard
     
 End Sub
+
