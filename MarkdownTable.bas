@@ -131,7 +131,7 @@ Sub MarkdownTable()
             
             outputArray(mIndex) = outputArray(mIndex) + Left(entry & Space(colLength), colLength) + " | "
             If mCol = endCol Then
-                outputArray(mIndex) = outputArray(mIndex) + vbCrLf
+                outputArray(mIndex) = Trim(outputArray(mIndex)) + vbCrLf
             End If
     
             Next mRow
