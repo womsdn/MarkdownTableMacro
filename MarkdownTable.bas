@@ -37,72 +37,26 @@ Sub MarkdownTable()
     
     ReDim outputArray(0 To endRow) As String
     
-    ' Store max text length for each column
-    Dim outputLength() As Integer
-    ReDim outputLength(0 To endCol) As Integer
-    
-    Dim currentColumn As Integer
-    Dim currentRow As Integer
-            
-    
-    For mCol = startCol To endCol
-    
-        currentColumn = Selection.Column + mCol - 1
-    
-        For mRow = startRow To endRow
-    
-            currentRow = Selection.Row + mRow - 1
-    
-            currentLenght = Len(tableArray(mRow, mCol))
-            
-            isBold = Cells(currentRow, currentColumn).Font.Bold
-            isItalic = Cells(currentRow, currentColumn).Font.Italic
-            isUnderline = (Cells(currentRow, currentColumn).Font.Underline = 2)
-            
-            If isBold Then
-                currentLenght = currentLenght + 4
-            ElseIf isItalic Then
-                currentLenght = currentLenght + 2
-            ElseIf isUnderline Then
-                currentLenght = currentLenght + 2
-            End If
-
-            MaxLenght = outputLength(mCol)
-            
-            If currentLenght > MaxLenght Then
-                outputLength(mCol) = currentLenght
-            End If
-            
-            Next mRow
-    
-            If outputLength(mCol) = 0 Then
-                outputLength(mCol) = 10
-            End If
-    
-        Next mCol
-    
     Dim SeparatorStart As String
     Dim SeparatorEnd As String
     
-    For mCol = startCol To endCol
-        
-        Dim colLength As Integer
-        colLength = outputLength(mCol)
-        
-        currentColumn = Selection.Column + mCol - 1
+    For mcol = startCol To endCol
+               
+        currentColumn = Selection.Column + mcol - 1
         cellAlignment = Range(Cells(Selection.Row, currentColumn), Cells(Selection.Row, currentColumn)).HorizontalAlignment
         
-        SeparatorStart = IIf(mCol = startCol, "|", "") & IIf(cellAlignment = xlCenter, ":", " ")
+        SeparatorStart = IIf(mcol = startCol, "|", "") & IIf(cellAlignment = xlCenter, ":", " ")
         SeparatorEnd = IIf(cellAlignment = xlCenter Or cellAlignment = xlRight, ":", " ") & "|"
     
-        rowSpaceHeader = SeparatorStart + String(colLength, "-") + SeparatorEnd
+        rowSpaceHeader = SeparatorStart + "-" + SeparatorEnd
    
-        For mRow = startRow To endRow
-            entry = tableArray(mRow, mCol)
+        For mrow = startRow To endRow
+            'entry = tableArray(mrow, mcol)
+            entry = Cells(Selection.Row + mrow - 1, Selection.Column + mcol - 1).Text
             
-            If Not mRow = startRow Then
+            If Not mrow = startRow Then
            
-                currentRow = Selection.Row + mRow - 1
+                currentRow = Selection.Row + mrow - 1
                 isBold = Cells(currentRow, currentColumn).Font.Bold
                 isItalic = Cells(currentRow, currentColumn).Font.Italic
                 isUnderline = (Cells(currentRow, currentColumn).Font.Underline = 2)
@@ -116,29 +70,29 @@ Sub MarkdownTable()
                 End If
             End If
             
-            mIndex = mRow
+            mIndex = mrow
             ' First row has index of 0.  As 2nd row in Table formatting
             ' defines column alignment the rest of the indices are equal to
             ' the actual row number
-            If mRow = startRow Then
-                mIndex = mRow - 1
+            If mrow = startRow Then
+                mIndex = mrow - 1
             End If
             ' Adding new column notation to end of entry
             
-            If mCol = startCol Then
+            If mcol = startCol Then
                 outputArray(mIndex) = "| "
             End If
             
-            outputArray(mIndex) = outputArray(mIndex) + Left(entry & Space(colLength), colLength) + " | "
-            If mCol = endCol Then
+            outputArray(mIndex) = outputArray(mIndex) + entry + " | "
+            If mcol = endCol Then
                 outputArray(mIndex) = Trim(outputArray(mIndex)) + vbCrLf
             End If
     
-            Next mRow
+            Next mrow
             ' For each column need to assign formatting in 2nd table row
             outputArray(1) = outputArray(1) + rowSpaceHeader
             
-        Next mCol
+        Next mcol
         
     ' Add line break at end of 2nd table row
     outputArray(1) = outputArray(1) + vbCrLf
